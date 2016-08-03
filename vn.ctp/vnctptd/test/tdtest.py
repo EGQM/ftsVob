@@ -3,8 +3,6 @@
 import sys
 from time import sleep
 
-from PyQt4 import QtGui
-
 from vnctptd import *
 
 #----------------------------------------------------------------------
@@ -104,9 +102,6 @@ def main():
     """主测试函数，出现堵塞时可以考虑使用sleep"""
     reqid = 0
     
-    # 创建Qt应用对象，用于事件循环
-    app = QtGui.QApplication(sys.argv)
-
     # 创建API对象，测试通过
     api = TestTdApi()
     
@@ -118,7 +113,10 @@ def main():
     api.subscribePublicTopic(1)
     
     # 注册前置机地址，测试通过
-    api.registerFront("tcp://qqfz-front1.ctp.shcifco.com:32305")
+    # 交易时间地址
+    api.registerFront("tcp://180.168.146.187:10000")
+    # 非交易时间地址
+    api.registerFront("tcp://180.168.146.187:10000")
     
     # 初始化api，连接前置机，测试通过
     api.init()
@@ -152,10 +150,6 @@ def main():
     #reqid = reqid + 1
     #i = api.reqSettlementInfoConfirm(req, reqid)
     #sleep(0.5)
-    
-    
-    # 连续运行
-    app.exec_()
     
     
     
