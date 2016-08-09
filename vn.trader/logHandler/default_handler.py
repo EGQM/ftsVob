@@ -2,6 +2,8 @@
 import os
 import logging
 
+logging.basicConfig(level=logging.DEBUG)
+
 class DefaultLogHandler(object):
     """默认的Log类基础系统支持类"""
     
@@ -21,8 +23,11 @@ class DefaultLogHandler(object):
                          'INFO': logging.INFO,
                          'DEBUG': logging.DEBUG}
 
+         
         fmt = logging.Formatter(fmt='%(asctime)s:%(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
                                 datefmt='%Y-%m-%d %H:%M:%S')
+
+
         if log_type == 'stdout':
             #创建一个handler输出到控制台
             ch = logging.StreamHandler()
@@ -43,17 +48,18 @@ class DefaultLogHandler(object):
         self.log.debug(*args, **kwargs)
 
     def info(self, *args, **kwargs):
-        self.info(*args, **kwargs)
+        self.log.info(*args, **kwargs)
 
     def warning(self, *args, **kwargs):
-        self.info(*args, **kwargs)
+        self.log.warning(*args, **kwargs)
 
     def critical(self, *args, **kwargs):
-        self.critical(*args, **kwargs)
-            
+        self.log.critical(*args, **kwargs)
+
 def main():
-    log = DefaultLogHandler(name='mylog', log_type='stdout')
-    log.error('msg')
+    dl = DefaultLogHandler()
+    dl.info(u'测试')
 
 if __name__ == '__main__':
     main()
+
