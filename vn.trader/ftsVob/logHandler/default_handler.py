@@ -12,7 +12,7 @@ class DefaultLogHandler(object):
                          'DEBUG': logging.DEBUG}
 
         self.logger.setLevel(self.loglevel[log_level])
-        fmt = logging.Formatter(fmt='%(asctime)s:%(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
+        fmt = logging.Formatter(fmt='%(asctime)s: %(levelname)s %(message)s',
                                 datefmt='%Y-%m-%d %H:%M:%S')
 
         if log_type == 'stdout':

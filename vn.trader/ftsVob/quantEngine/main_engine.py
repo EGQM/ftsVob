@@ -16,7 +16,7 @@ from ..quantGateway import *
 class MainEngine:
     """主引擎，负责行情 / 事件驱动引擎 / 交易"""
 
-    def __init__(self, gateway_name, gateway_config, log_handler=DefaultLogHandler(), quotation_engines=None):
+    def __init__(self, gateway_name, gateway_config, log_handler=DefaultLogHandler(name=__name__), quotation_engines=None):
         """初始化事件引擎 / 连接gateway"""
         self.event_engine = EventEngine()
         self.gateway = Use(gateway_name, gatewayConf=gateway_config, eventEngine=self.event_engine, log=log_handler)

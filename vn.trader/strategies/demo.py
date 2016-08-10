@@ -11,4 +11,4 @@ class Strategy(StrategyTemplate):
         self.log.info('\n')
 
     def log_handler(self):
-        return DefaultLogHandler(name='ctp', log_type='file')
+        return DefaultLogHandler(name=__name__, log_type='file')
