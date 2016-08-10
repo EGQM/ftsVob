@@ -66,9 +66,9 @@ class CtpGateway(VtGateway):
     """CTP接口"""
 
     #----------------------------------------------------------------------
-    def __init__(self, gatewayName='CTP', gatewayConf=None, log=None):
+    def __init__(self, gatewayName='CTP', gatewayConf=None, eventEngine=None, log=None):
         """Constructor"""
-        super(CtpGateway, self).__init__(gatewayName, log)
+        super(CtpGateway, self).__init__(gatewayName, eventEngine=eventEngine, log=log)
         
         self.mdApi = CtpMdApi(self, self.log)     # 行情API
         self.tdApi = CtpTdApi(self, self.log)     # 交易API
@@ -227,7 +227,7 @@ class CtpMdApi(MdApi):
     def onRspSubMarketData(self, data, error, n, last):
         """订阅合约回报"""
         # 通常不在乎订阅错误，选择忽略
-        pass
+        self.log.info(error['ErrorID'])
         
     #----------------------------------------------------------------------  
     def onRspUnSubMarketData(self, data, error, n, last):
@@ -264,7 +264,7 @@ class CtpMdApi(MdApi):
         tick.bidVolume1 = data['BidVolume1']
         tick.askPrice1 = data['AskPrice1']
         tick.askVolume1 = data['AskVolume1']
-        
+        self.log.info(tick) 
         self.gateway.onTick(tick)
         
     #---------------------------------------------------------------------- 
@@ -523,18 +523,7 @@ class CtpTdApi(TdApi):
     #----------------------------------------------------------------------
     def onRspQryInvestorPosition(self, data, error, n, last):
         """持仓查询回报"""
-        # 获取缓存字典中的持仓缓存，若无则创建并初始化
-        positionName = '.'.join([data['InstrumentID'], data['PosiDirection']])
-        
-        if positionName in self.posBufferDict:
-            posBuffer = self.posBufferDict[positionName]
-        else:
-            posBuffer = PositionBuffer(data, self.gatewayName)
-            self.posBufferDict[positionName] = posBuffer
-        
-        # 更新持仓缓存，并获取VT系统中持仓对象的返回值
-        pos = posBuffer.updateBuffer(data)
-        self.gateway.onPosition(pos)
+        self.gateway.onPosition(data)
     
     #----------------------------------------------------------------------
     def onRspQryTradingAccount(self, data, error, n, last):
@@ -1220,22 +1209,3 @@ class PositionBuffer(object):
             
         return copy(self.pos)
 
-#----------------------------------------------------------------------
-def test():
-    """测试"""
-    import sys
-    
-    def print_log(event):
-        log = event.dict_['data']
-        print ':'.join([log.logTime, log.logContent])
-
-    eventEngine = EventEngine()
-    eventEngine.register(EVENT_LOG, print_log)
-    eventEngine.start()
-    
-    gateway = CtpGateway(eventEngine)
-    gateway.connect()
-
-
-if __name__ == '__main__':
-    test()

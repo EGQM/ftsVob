@@ -3,6 +3,10 @@ from collections import defaultdict
 from Queue import Queue, Empty
 from threading import Thread
 
+#帐户相关常量事件
+EVENT_POSITION = 'ePosition'
+EVENT_ACCOUNT = 'eAccount'
+
 class Event:
     """事件对象"""
 

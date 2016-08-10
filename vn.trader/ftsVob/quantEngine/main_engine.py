@@ -7,6 +7,7 @@ import importlib
 from collections import OrderedDict
 from .event_engine import EventEngine
 from .push_engine import DefaultQuotationEngine
+from .push_engine import AccountInfoEngine
 
 #引用系统支持类
 from ..logHandler import DefaultLogHandler
@@ -17,15 +18,15 @@ class MainEngine:
 
     def __init__(self, gateway_name, gateway_config, log_handler=DefaultLogHandler(), quotation_engines=None):
         """初始化事件引擎 / 连接gateway"""
-        self.gateway = Use(gateway_name, gatewayConf=gateway_config, log=log_handler)
+        self.event_engine = EventEngine()
+        self.gateway = Use(gateway_name, gatewayConf=gateway_config, eventEngine=self.event_engine, log=log_handler)
         self.log = log_handler
         if os.path.exists(gateway_config):
-            self.gateway.connect(gateway_config)
+            self.gateway.connect()
         else:
             self.log.warn(u"配置文件不存在 %s" % gateway_config)
 
-        self.event_engine = EventEngine()
-        quotation_engines = quotation_engines or []
+        quotation_engines = quotation_engines or [AccountInfoEngine]
 
         if type(quotation_engines) != list:
             quotation_engines = [quotation_engines]
@@ -42,6 +43,10 @@ class MainEngine:
     def start(self):
         """启动主引擎"""
         self.event_engine.start()
+        #策略引擎延时启动,保证交易所服务器连接成功
+        time.sleep(5)
+        for quotation_engine in self.quotation_engines:
+            quotation_engine.start()
 
     def load_strategy(self, names=None):
         """动态加载策略

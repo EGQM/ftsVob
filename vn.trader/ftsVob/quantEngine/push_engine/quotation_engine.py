@@ -7,7 +7,6 @@ class DefaultQuotationEngine(BaseEngine):
     EventType = 'quotation'
 
     def init(self):
-        self.quotadata = self.gateway.subscribe('IF1608')
 
         #暂时作为测试数据
         self.source = {}
