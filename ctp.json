@@ -1,0 +1,8 @@
+{
+    "brokerID": 期货公司代码,
+    "tdAddress": "tcp://tdIP+port",
+    "password": 密码,
+    "mdAddress": "tcp://mdIP+port",
+    "userID": 客户号
+}
+
