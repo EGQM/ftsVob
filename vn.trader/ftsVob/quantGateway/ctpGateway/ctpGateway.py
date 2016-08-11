@@ -529,6 +529,7 @@ class CtpTdApi(TdApi):
         if not last:
             self.pos.append(data) 
         else:
+            self.pos.append(data)
             self.gateway.onPosition(self.pos)
             self.pos = []
 
