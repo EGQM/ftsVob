@@ -367,7 +367,10 @@ class CtpTdApi(TdApi):
         self.sessionID = EMPTY_INT          # 会话编号
         
         self.posBufferDict = {}             # 缓存持仓数据的字典
+        self.symbolExchangeDict = {}        # 保存合约代码和交易所的印射关系
+        self.symbolSizeDict = {}            # 保存合约代码和合约大小的印射关系
         self.log = log                      # 日志句柄
+        self.pos = list()                   # 持仓列表
         
     #----------------------------------------------------------------------
     def onFrontConnected(self):
@@ -523,7 +526,12 @@ class CtpTdApi(TdApi):
     #----------------------------------------------------------------------
     def onRspQryInvestorPosition(self, data, error, n, last):
         """持仓查询回报"""
-        self.gateway.onPosition(data)
+        if not last:
+            self.pos.append(data) 
+        else:
+            self.gateway.onPosition(self.pos)
+            self.pos = []
+
     
     #----------------------------------------------------------------------
     def onRspQryTradingAccount(self, data, error, n, last):
@@ -615,6 +623,10 @@ class CtpTdApi(TdApi):
         elif data['OptionsType'] == '2':
             contract.optionType = OPTION_PUT
         
+        # 缓存代码和交易所的印射关系
+        self.symbolExchangeDict[contract.symbol] = contract.exchange
+        self.symbolSizeDict[contract.symbol] = contract.size
+
         # 推送
         self.gateway.onContract(contract)
         
@@ -1184,16 +1196,16 @@ class PositionBuffer(object):
         pos.vtPositionName = '.'.join([pos.vtSymbol, pos.direction]) 
         self.pos = pos
         
-    #----------------------------------------------------------------------
-    def updateBuffer(self, data):
-        """更新缓存，返回更新后的持仓数据"""
+    def updateShfeBuffer(self, data, size):
+        """更新上期所缓存，返回更新后的持仓数据"""
         # 昨仓和今仓的数据更新是分在两条记录里的，因此需要判断检查该条记录对应仓位
-        if data['TodayPosition']:
-            self.todayPosition = data['Position']
-            self.todayPositionCost = data['PositionCost']
-        elif data['YdPosition']:
+        # 因为今仓字段TodayPosition可能变为0（被全部平仓），因此分辨今昨仓需要用YdPosition字段
+        if data['YdPosition']:
             self.ydPosition = data['Position']
-            self.ydPositionCost = data['PositionCost']
+            self.ydPositionCost = data['PositionCost']   
+        else:
+            self.todayPosition = data['Position']
+            self.todayPositionCost = data['PositionCost']        
             
         # 持仓的昨仓和今仓相加后为总持仓
         self.pos.position = self.todayPosition + self.ydPosition
@@ -1202,10 +1214,23 @@ class PositionBuffer(object):
         # 如果手头还有持仓，则通过加权平均方式计算持仓均价
         if self.todayPosition or self.ydPosition:
             self.pos.price = ((self.todayPositionCost + self.ydPositionCost)/
-                              (self.todayPosition + self.ydPosition))
+                              ((self.todayPosition + self.ydPosition) * size))
         # 否则价格为0
         else:
             self.pos.price = 0
             
         return copy(self.pos)
+
+    def updateBuffer(self, data, size):
+        """更新其他交易所的缓存，返回更新后的持仓数据"""
+        # 其他交易所并不区分今昨，因此只关心总仓位，昨仓设为0
+        self.pos.position = data['Position']
+        self.pos.ydPosition = 0
+        
+        if data['Position']:
+            self.pos.price = data['PositionCost'] / (data['Position'] * size)
+        else:
+            self.pos.price = 0
+            
+        return copy(self.pos)    
 

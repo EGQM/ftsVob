@@ -22,6 +22,7 @@ ftsVob
             --->XXX_engine.py
     --->quantGateway/
             --->quant_gateway.py
+            --->quant_constant.py
             --->ctpGateway/ (Trade interface mode)
     --->quantStrategy/
             --->strategyTemplate.py

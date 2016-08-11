@@ -1,12 +1,12 @@
 #!/bin/bash
 SCRIPTNAME=daemonvt.sh
-PIDFILE=vntrade.pid
+PIDFILE=fts.pid
 PYTHONCMD=/usr/bin/python
 do_start() {
-    $PYTHONCMD vtMain.py
+    $PYTHONCMD ftsMain.py
 }
 do_stop() {
-    kill `cat $PIDFILE` || echo -n "vntrade not running"
+    kill `cat $PIDFILE` || echo -n "fts not running"
 }
 case "$1" in
     start)
