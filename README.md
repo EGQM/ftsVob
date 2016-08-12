@@ -8,26 +8,42 @@ Guide:
 
 ### Program whole picture
 
-ctp.json
-ftsMain.py
-strategies/
-    --->demo.py(example strategy only read account info and position)
-ftsVob
-    --->quantEngine/
-        --->main_engine.py
-        --->event_engine.py
-        --->push_engine/
-            --->base_engine.py
-            --->clock_engine.py
-            --->XXX_engine.py
-    --->quantGateway/
-            --->quant_gateway.py
-            --->ctpGateway/ (Trade interface mode)
-    --->quantStrategy/
-            --->strategyTemplate.py
-    --->logHandler/
-            --->default_handler.py
-    --->databaseSys/
+ * [strategies]
+   * [demo.py]
+   * [__init__.py]
+ * [daemonvt.sh]
+ * [ctp.json]
+ * [ftsVob]
+   * [quantEngine]
+     * [event_engine.py]
+     * [push_engine]
+       * [account_info_engine.py]
+       * [base_engine.py]
+       * [clock_engine.py]
+       * [__init__.py]
+       * [quotation_engine.py]
+     * [main_engine.py]
+     * [__init__.py]
+   * [quantGateway]
+     * [ctpGateway]
+       * [ctpGateway.py]
+       * [vnctpmd.so]
+       * [vnctptd.so]
+       * [ctpDataType.py]
+       * [__init__.py]
+     * [quant_gateway.py]
+     * [api.py]
+     * [__init__.py]
+     * [quant_constant.py]
+   * [logHandler]
+     * [default_handler.py]
+     * [__init__.py]
+   * [quantStrategy]
+     * [__init__.py]
+     * [strategyTemplate.py]
+   * [databaseSys]
+   * [__init__.py]
+ * [ftsMain.py]
 
 ### Develop plan
 * Improve log handler system need fix some bugs of log system

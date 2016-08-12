@@ -27,8 +27,7 @@ class AccountInfoEngine(BaseEngine):
         self.source['account'] = json.dumps(event.data.__dict__)
         
     def fetch_quotation(self):
-        self.gateway.qryAccount()
+        #self.gateway.qryAccount()
         #这里需要延时处理,否则回报会丢弃,建议使用多引擎的方式
-        time.sleep(0.5)
         self.gateway.qryPosition()
         return self.source

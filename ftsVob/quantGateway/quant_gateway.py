@@ -212,3 +212,149 @@ class VtAccountData(VtBaseData):
         self.margin = EMPTY_FLOAT               # 保证金占用
         self.closeProfit = EMPTY_FLOAT          # 平仓盈亏
         self.positionProfit = EMPTY_FLOAT       # 持仓盈亏
+
+class VtOrderData(VtBaseData):
+    """订单数据类"""
+
+    #----------------------------------------------------------------------
+    def __init__(self):
+        """Constructor"""
+        super(VtOrderData, self).__init__()
+        
+        # 代码编号相关
+        self.symbol = EMPTY_STRING              # 合约代码
+        self.exchange = EMPTY_STRING            # 交易所代码
+        self.vtSymbol = EMPTY_STRING            # 合约在vt系统中的唯一代码，通常是 合约代码.交易所代码
+        
+        self.orderID = EMPTY_STRING             # 订单编号
+        self.vtOrderID = EMPTY_STRING           # 订单在vt系统中的唯一编号，通常是 Gateway名.订单编号
+        
+        # 报单相关
+        self.direction = EMPTY_UNICODE          # 报单方向
+        self.offset = EMPTY_UNICODE             # 报单开平仓
+        self.price = EMPTY_FLOAT                # 报单价格
+        self.totalVolume = EMPTY_INT            # 报单总数量
+        self.tradedVolume = EMPTY_INT           # 报单成交数量
+        self.status = EMPTY_UNICODE             # 报单状态
+        
+        self.orderTime = EMPTY_STRING           # 发单时间
+        self.cancelTime = EMPTY_STRING          # 撤单时间
+        
+        # CTP/LTS相关
+        self.frontID = EMPTY_INT                # 前置机编号
+        self.sessionID = EMPTY_INT              # 连接编号
+
+class VtTradeData(VtBaseData):
+    """成交数据类"""
+
+    #----------------------------------------------------------------------
+    def __init__(self):
+        """Constructor"""
+        super(VtTradeData, self).__init__()
+        
+        # 代码编号相关
+        self.symbol = EMPTY_STRING              # 合约代码
+        self.exchange = EMPTY_STRING            # 交易所代码
+        self.vtSymbol = EMPTY_STRING            # 合约在vt系统中的唯一代码，通常是 合约代码.交易所代码
+        
+        self.tradeID = EMPTY_STRING             # 成交编号
+        self.vtTradeID = EMPTY_STRING           # 成交在vt系统中的唯一编号，通常是 Gateway名.成交编号
+        
+        self.orderID = EMPTY_STRING             # 订单编号
+        self.vtOrderID = EMPTY_STRING           # 订单在vt系统中的唯一编号，通常是 Gateway名.订单编号
+        
+        # 成交相关
+        self.direction = EMPTY_UNICODE          # 成交方向
+        self.offset = EMPTY_UNICODE             # 成交开平仓
+        self.price = EMPTY_FLOAT                # 成交价格
+        self.volume = EMPTY_INT                 # 成交数量
+        self.tradeTime = EMPTY_STRING           # 成交时间
+ 
+class VtPositionData(VtBaseData):
+    """持仓数据类"""
+
+    #----------------------------------------------------------------------
+    def __init__(self):
+        """Constructor"""
+        super(VtPositionData, self).__init__()
+        
+        # 代码编号相关
+        self.symbol = EMPTY_STRING              # 合约代码
+        self.exchange = EMPTY_STRING            # 交易所代码
+        self.vtSymbol = EMPTY_STRING            # 合约在vt系统中的唯一代码，合约代码.交易所代码  
+        
+        # 持仓相关
+        self.direction = EMPTY_STRING           # 持仓方向
+        self.position = EMPTY_INT               # 持仓量
+        self.frozen = EMPTY_INT                 # 冻结数量
+        self.price = EMPTY_FLOAT                # 持仓均价
+        self.vtPositionName = EMPTY_STRING      # 持仓在vt系统中的唯一代码，通常是vtSymbol.方向
+        
+        # 20151020添加
+        self.ydPosition = EMPTY_INT             # 昨持仓
+
+class VtErrorData(VtBaseData):
+    """错误数据类"""
+
+    #----------------------------------------------------------------------
+    def __init__(self):
+        """Constructor"""
+        super(VtErrorData, self).__init__()
+        
+        self.errorID = EMPTY_STRING             # 错误代码
+        self.errorMsg = EMPTY_UNICODE           # 错误信息
+        self.additionalInfo = EMPTY_UNICODE     # 补充信息
+        
+        self.errorTime = time.strftime('%X', time.localtime())    # 错误生成时间
+
+class VtSubscribeReq(object):
+    """订阅行情时传入的对象类"""
+
+    #----------------------------------------------------------------------
+    def __init__(self):
+        """Constructor"""
+        self.symbol = EMPTY_STRING              # 代码
+        self.exchange = EMPTY_STRING            # 交易所
+        
+        # 以下为IB相关
+        self.productClass = EMPTY_UNICODE       # 合约类型
+        self.currency = EMPTY_STRING            # 合约货币
+        self.expiry = EMPTY_STRING              # 到期日
+        self.strikePrice = EMPTY_FLOAT          # 行权价
+        self.optionType = EMPTY_UNICODE         # 期权类型
+
+class VtOrderReq(object):
+    """发单时传入的对象类"""
+
+    #----------------------------------------------------------------------
+    def __init__(self):
+        """Constructor"""
+        self.symbol = EMPTY_STRING              # 代码
+        self.exchange = EMPTY_STRING            # 交易所
+        self.price = EMPTY_FLOAT                # 价格
+        self.volume = EMPTY_INT                 # 数量
+    
+        self.priceType = EMPTY_STRING           # 价格类型
+        self.direction = EMPTY_STRING           # 买卖
+        self.offset = EMPTY_STRING              # 开平
+        
+        # 以下为IB相关
+        self.productClass = EMPTY_UNICODE       # 合约类型
+        self.currency = EMPTY_STRING            # 合约货币
+        self.expiry = EMPTY_STRING              # 到期日
+        self.strikePrice = EMPTY_FLOAT          # 行权价
+        self.optionType = EMPTY_UNICODE         # 期权类型        
+
+class VtCancelOrderReq(object):
+    """撤单时传入的对象类"""
+
+    #----------------------------------------------------------------------
+    def __init__(self):
+        """Constructor"""
+        self.symbol = EMPTY_STRING              # 代码
+        self.exchange = EMPTY_STRING            # 交易所
+        
+        # 以下字段主要和CTP、LTS类接口相关
+        self.orderID = EMPTY_STRING             # 报单号
+        self.frontID = EMPTY_STRING             # 前置机号
+        self.sessionID = EMPTY_STRING           # 会话号
