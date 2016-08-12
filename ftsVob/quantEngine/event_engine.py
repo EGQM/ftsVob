@@ -10,19 +10,17 @@ EVENT_ACCOUNT = 'eAccount'
 class Event:
     """事件对象"""
 
-    def __init__(self, event_type, data=None, queue_type='td'):
+    def __init__(self, event_type, data=None):
         self.event_type = event_type
         self.data = data
-        self.queue_type = queue_type
 
 class EventEngine:
     """事件驱动引擎"""
 
     def __init__(self):
         """初始化事件引擎"""
-        # 事件队列,行情队列和交易队列分开
-        self.__queue_td = Queue()
-        self.__queue_md = Queue()
+        # 事件队列
+        self.__queue = Queue()
 
         # 事件引擎开关
         self.__active = False
@@ -37,14 +35,9 @@ class EventEngine:
         """启动引擎"""
         while self.__active:
             try:
-                event_td = self.__queue_td.get(block=True, timeout=1)
-                event_md = self.__queue_md.get(block=True, timeout=1)
-                
-                handle_thread_td = Thread(target=self.__process, args=(event_td,))
-                handle_thread_md = Thread(target=self.__process, args=(event_md,))
-                
-                handle_thread_td.start()
-                handle_thread_md.start()
+                event = self.__queue.get(block=True, timeout=1)
+                handle_thread = Thread(target=self.__process, args=(event,))
+                handle_thread.start()
             except Empty:
                 pass
 
@@ -82,15 +75,8 @@ class EventEngine:
             self.__handlers.pop(event_type)
 
     def put(self, event):
-        if event.queue_type == 'td':
-            self.__queue_td.put(event)
-        if event.queue_type == 'md':
-            self.__queue_md.put(event)
+        self.__queue.put(event)
 
     @property
-    def queue_td_size(self):
-        return self.__queue_td.qsize()
-
-    @property
-    def queue_md_size(self):
-        return self.__queue_md.qsize()
+    def queue_size(self):
+        return self.__queue.qsize()
