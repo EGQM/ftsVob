@@ -18,26 +18,29 @@ class AlgoTrade(object):
         self.gateway = gateWay
         self.eventengine = eventEngine
         self.log = log
+
+        #处理多合约这里设计为一个二级字典
+        #{'symbol':{'orderID': orderObj}}
         self.orderinfo = {}
 
-    def twap(self, size, volume, reqobj, price=0, interval=1, maxtimeout=60):
+    def twap(self, size, reqobj, price=0, interval=1, maxtimeout=60):
         self.twap_thread = Thread(target=self.twap_callback, args=(size, volume, reqobj, price, interval, maxtimeout))
         self.twap_thread.start()
 
-    def vwap(self, size, volume, reqobj, price=0, interval=1, maxtimeout=60):
+    def vwap(self, size, reqobj, price=0, interval=1, maxtimeout=60):
         self.vwap_thread = Thread(target=self.vwap_callback, args=(size, volume, reqobj, price, interval, maxtimeout))
         self.vwap_thread.start()
 
-    def twap_callback(self, size, volume, reqobj, price, interval, maxtimeout):
+    def twap_callback(self, size, reqobj, price, interval, maxtimeout):
         """Time Weighted Average Price
         每次以线程模式调用
         @size: 小单规模
-        @volume: 总单规模
         @reqobj: 发单请求
         @price: 下单价格，默认为0表示按照bid1下单
         @interval: 时间结果，每个size的时间间隔
         @maxtimeout: 最长等待时间，超时则按照ask1扫单
         """
+        volume = reqobj.volume
         starttime = datetime.datetime.now()
         status_send_order = {'timeout':False, 'success':False}
         while(True):
@@ -46,7 +49,7 @@ class AlgoTrade(object):
             else:
                 count = volume // size
 
-            #获取合约的即时价格，目前单一API只能处理单个合约
+            #获取合约的即时价格
             rb_data = self.gateway.tickdata[reqobj.symbol].tolist()[-1]
             price = rb_data.bidPrice1
             
@@ -63,17 +66,22 @@ class AlgoTrade(object):
 
              #检查Order信息表，准备撤单
              remain_volume = 0
-             for elt in self.orderinfo:
-                 of = orderinfo[elt]
-                 if of.status != STATUS_ALLTRADED:
-                     cancel_obj = VtCancelOrderReq()
-                     cancel_obj.symbol = of.symbol
-                     cancel_obj.exchange = of.exchange
-                     cancel_obj.orderID = of.orderID
-                     cancel_obj.frontID = of.frontID
-                     cancel_obj.sessionID = of.sessionID
-                     self.gateway.cancelOrder(cancel_obj)
-                     remain_volume = of.totalVolume - of.tradedVolume
+            
+             #获取合约订单
+             contract = self.orderinfo[reqobj.symbol]
+
+             for elt in contrace:
+                #遍历订单
+                of = contract[elt]
+                if of.status != STATUS_ALLTRADED:
+                    cancel_obj = VtCancelOrderReq()
+                    cancel_obj.symbol = of.symbol
+                    cancel_obj.exchange = of.exchange
+                    cancel_obj.orderID = of.orderID
+                    cancel_obj.frontID = of.frontID
+                    cancel_obj.sessionID = of.sessionID
+                    self.gateway.cancelOrder(cancel_obj)
+                    remain_volume += (of.totalVolume - of.tradedVolume)
 
              if remain_volume == 0:
                  status_send_order['success'] = True
@@ -96,20 +104,20 @@ class AlgoTrade(object):
         self.gateway.sendOrder(reqobj)
         
     def get_order_info_callback(self, event):
-        orderinfo = event.data
-        self.orderinfo[orderinfo.orderID] = orderinfo
+        if event.data.symbol in orderinfo: 
+            orderinfo[event.data.symbol][event.data.orderID] = event.data
+        else:
+            orderinfo[event.data.symbol] = dict()
+            orderinfo[event.data.symbol][event.data.orderID] = event.data
 
     def get_trade_info_callback(self, event):
         tradeinfo = event.data
-        self.orderinfo[tradeinfo.orderID].status = STATUS_ALLTRADED
+        self.orderinfo[tradeinfo.symbol][tradeinfo.orderID].status = STATUS_ALLTRADED
 
     def register(self):
         self.eventEngine.register(EVENT_TRADE, self.get_trade_info_callback)
         self.eventEngine.register(EVENT_ORDER, self.get_order_info_callback)
         
-    def vwap_callback(self, size, volume, reqobj, price, interval, maxtimeout):
+    def vwap_callback(self, size, reqobj, price, interval, maxtimeout):
         pass
-        
-        
-        
         

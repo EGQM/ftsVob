@@ -1,7 +1,10 @@
 #coding: utf-8
 from ftsVob.quantGateway.quant_constant import *
+from ftsVob.quantGateway.quant_gateway import  *
+
 from ftsVob import  StrategyTemplate
 from ftsVob import  DefaultLogHandler
+from ftsVob import  AlgoTrade
 
 class Strategy(StrategyTemplate):
     name = 'Cta strategy'
@@ -16,6 +19,14 @@ class Strategy(StrategyTemplate):
     
     def run(self, event):
         self.log.info(event.data)
+        orderreq = VtOrderData()
+        orderreq.symbol = 'IF1609'
+        orderreq.volume = 10
+        orderreq.priceType = PRICETYPE_FOK
+        orderreq.direction = DIRECT_SHORT
+        orderreq.direction = OFFSET_OPEN
+        self.algo.twap(1, orderreq)
+        """
         if 'position' in event.data:
             poslist = event.data['position']
             for elt in poslist:
@@ -34,15 +45,5 @@ class Strategy(StrategyTemplate):
                     self.gateway.sendOrder(req)
                 else:
                     self.log.info('Position volume is zero')
-
-class ReqObj(object):
-
-    def __init__(self, symbol, price, volume, pricetype, direction, offset):
-        self.symbol = symbol
-        self.price = price
-        self.volume = volume
-        self.priceType = pricetype
-        self.direction = direction
-        self.offset = offset
-
+        """
 

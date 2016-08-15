@@ -2,6 +2,7 @@
 import sys
 import traceback
 
+from ..quantAlgo import AlgoTrade
 
 class StrategyTemplate:
     name = 'DefaultStrategyTemplate'
@@ -12,6 +13,9 @@ class StrategyTemplate:
 
         # 优先使用自定义 log 句柄, 否则使用主引擎日志句柄
         self.log = self.log_handler() or log_handler
+
+        # 每个策略对应一个Algo类
+        self.algo = AlgoTrade(gateway, main_engine.event_engine, log=self.log)
 
         self.init()
 
