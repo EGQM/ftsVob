@@ -19,15 +19,20 @@ class AccountInfoEngine(BaseEngine):
         #注册需要的数据推送事件
         self.event_engine.register(EVENT_POSITION, self.get_position)
         self.event_engine.register(EVENT_ACCOUNT, self.get_account)
+        self.event_engine.register(EVENT_TICKET, self.get_quotation)
 
     def get_position(self, event):
         self.source['position'] = event.data
 
     def get_account(self, event):
         self.source['account'] = json.dumps(event.data.__dict__)
+    
+    def get_quotation(self, event):
+        self.source['quotation'] = event.data
         
     def fetch_quotation(self):
         #self.gateway.qryAccount()
         #这里需要延时处理,否则回报会丢弃,建议使用多引擎的方式
-        self.gateway.qryPosition()
+        #self.gateway.qryPosition()
+        self.gateway.subscribe('IF1609')
         return self.source

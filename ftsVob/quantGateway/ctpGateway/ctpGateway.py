@@ -92,7 +92,7 @@ class CtpGateway(VtGateway):
         
         # 解析json文件
         setting = json.load(f)
-        try:
+        try contractName:
             userID = str(setting['userID'])
             password = str(setting['password'])
             brokerID = str(setting['brokerID'])
@@ -107,9 +107,11 @@ class CtpGateway(VtGateway):
         self.tdApi.connect(userID, password, brokerID, tdAddress)
         
     #----------------------------------------------------------------------
-    def subscribe(self, subscribeReq):
+    def subscribe(self, contractName):
         """订阅行情"""
-        self.mdApi.subscribe(subscribeReq)
+        reqobj = VtSubscribeReq()
+        reqobj.symbol = contractName 
+        self.mdApi.subscribe(reqobj)
         
     #----------------------------------------------------------------------
     def sendOrder(self, orderReq):
@@ -264,7 +266,6 @@ class CtpMdApi(MdApi):
         tick.bidVolume1 = data['BidVolume1']
         tick.askPrice1 = data['AskPrice1']
         tick.askVolume1 = data['AskVolume1']
-        self.log.info(tick) 
         self.gateway.onTick(tick)
         
     #---------------------------------------------------------------------- 

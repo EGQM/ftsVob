@@ -6,6 +6,7 @@ from threading import Thread
 #帐户相关常量事件
 EVENT_POSITION = 'ePosition'
 EVENT_ACCOUNT = 'eAccount'
+EVENT_TICKET = 'eTicket' #行情推送事件
 
 class Event:
     """事件对象"""
