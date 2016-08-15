@@ -46,4 +46,3 @@ class Strategy(StrategyTemplate):
                 else:
                     self.log.info('Position volume is zero')
         """
-

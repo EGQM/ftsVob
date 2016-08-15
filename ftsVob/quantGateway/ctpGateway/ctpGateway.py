@@ -534,7 +534,6 @@ class CtpTdApi(TdApi):
             self.gateway.onPosition(self.pos)
             self.pos = []
 
-    
     #----------------------------------------------------------------------
     def onRspQryTradingAccount(self, data, error, n, last):
         """资金账户查询回报"""

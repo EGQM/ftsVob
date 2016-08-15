@@ -1,4 +1,4 @@
-Daomon program of ftsVob (Future Trade System Vob)
+Daemon program of ftsVob (Future Trade System Vob)
 Author: Occ
 Guide:
 * Server trade type system type, has no graphic user interface
