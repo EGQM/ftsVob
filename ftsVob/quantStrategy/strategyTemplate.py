@@ -15,7 +15,7 @@ class StrategyTemplate:
         self.log = self.log_handler() or log_handler
 
         # 每个策略对应一个Algo类
-        self.algo = AlgoTrade(gateway, main_engine.event_engine, log=self.log)
+        self.algo = AlgoTrade(gateway, main_engine.event_engine)
 
         self.init()
 
