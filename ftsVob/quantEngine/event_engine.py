@@ -7,6 +7,9 @@ from threading import Thread
 EVENT_POSITION = 'ePosition'
 EVENT_ACCOUNT = 'eAccount'
 EVENT_TICKET = 'eTicket' #行情推送事件
+EVENT_ERROR = 'eError'   #错误处理事件将统一交给error_handler处理
+EVENT_TRADE = 'eTrade'   #处理交易成功回报
+EVENT_ORDER = 'eOrder'   #处理交易下单回报
 
 class Event:
     """事件对象"""

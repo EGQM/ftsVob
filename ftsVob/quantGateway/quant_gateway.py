@@ -67,7 +67,9 @@ class VtGateway(object):
     def onError(self, error):
         """错误信息推送"""
         # 通用事件
-        pass
+        event = Event(event_type=EVENT_ERROR)
+        event.data = error
+        self.eventEngine.put(event)
         
     #----------------------------------------------------------------------
     def onLog(self, log):

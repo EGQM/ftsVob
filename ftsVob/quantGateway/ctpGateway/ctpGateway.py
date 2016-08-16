@@ -92,7 +92,7 @@ class CtpGateway(VtGateway):
         
         # 解析json文件
         setting = json.load(f)
-        try contractName:
+        try:
             userID = str(setting['userID'])
             password = str(setting['password'])
             brokerID = str(setting['brokerID'])
@@ -107,10 +107,10 @@ class CtpGateway(VtGateway):
         self.tdApi.connect(userID, password, brokerID, tdAddress)
         
     #----------------------------------------------------------------------
-    def subscribe(self, contractName):
+    def subscribe(self, contract_name):
         """订阅行情"""
         reqobj = VtSubscribeReq()
-        reqobj.symbol = contractName 
+        reqobj.symbol = contract_name 
         self.mdApi.subscribe(reqobj)
         
     #----------------------------------------------------------------------
@@ -192,8 +192,10 @@ class CtpMdApi(MdApi):
     #----------------------------------------------------------------------   
     def onRspError(self, error, n, last):
         """错误回报"""
-        self.log.info(error['ErrorID'])
-        self.log.info(error['ErrorMsg'].decode('gbk'))
+        err = VtErrorData()
+        err.errorID = error['ErrorID']
+        err.errorMsg = error['ErrorMsg'].decode('gbk')
+        self.gateway.onError(err)
 
     #----------------------------------------------------------------------
     def onRspUserLogin(self, data, error, n, last):
@@ -447,8 +449,11 @@ class CtpTdApi(TdApi):
     #----------------------------------------------------------------------
     def onRspOrderInsert(self, data, error, n, last):
         """发单错误（柜台）"""
-        self.log.info(error['ErrorID'])
-        self.log.info(error['ErrorMsg'].decode('gbk'))
+        """本地消息必须处理"""
+        err = VtErrorData()
+        err.errorID = error['ErrorID']
+        err.errorMsg = error['ErrorMsg'].decode('gbk')
+        self.gateway.onError(err)
     
     #----------------------------------------------------------------------
     def onRspParkedOrderInsert(self, data, error, n, last):
@@ -463,8 +468,11 @@ class CtpTdApi(TdApi):
     #----------------------------------------------------------------------
     def onRspOrderAction(self, data, error, n, last):
         """撤单错误（柜台）"""
-        self.log.info(error['ErrorID'])
-        self.log.info(error['ErrorMsg'].decode('gbk'))
+        """本地消息必须处理"""
+        err = VtErrorData()
+        err.errorID = error['ErrorID']
+        err.errorMsg = error['ErrorMsg'].decode('gbk')
+        self.gateway.onError(err)
     
     #----------------------------------------------------------------------
     def onRspQueryMaxOrderVolume(self, data, error, n, last):
@@ -845,14 +853,18 @@ class CtpTdApi(TdApi):
     #----------------------------------------------------------------------
     def onErrRtnOrderInsert(self, data, error):
         """发单错误回报（交易所）"""
-        self.log.info(error['ErrorID'])
-        self.log.info(error['ErrorMsg'].decode('gbk'))
+        """分布式处理时需要关注的回报，目前暂时忽略"""
+        pass
+        #self.log.info(error['ErrorID'])
+        #self.log.info(error['ErrorMsg'].decode('gbk'))
 
     #----------------------------------------------------------------------
     def onErrRtnOrderAction(self, data, error):
         """撤单错误回报（交易所）"""
-        self.log.info(error['ErrorID'])
-        self.log.info(error['ErrorMsg'].decode('gbk'))
+        """分布式处理时需要关注的回报，目前暂时忽略"""
+        pass
+        #self.log.info(error['ErrorID'])
+        #self.log.info(error['ErrorMsg'].decode('gbk'))
     
     #----------------------------------------------------------------------
     def onRtnInstrumentStatus(self, data):

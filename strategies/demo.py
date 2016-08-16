@@ -19,12 +19,12 @@ class Strategy(StrategyTemplate):
     
     def run(self, event):
         self.log.info(event.data)
-        orderreq = VtOrderData()
+        orderreq = VtOrderReq()
         orderreq.symbol = 'IF1609'
-        orderreq.volume = 10
+        orderreq.volume = 5 
         orderreq.priceType = PRICETYPE_FOK
-        orderreq.direction = DIRECT_SHORT
-        orderreq.direction = OFFSET_OPEN
+        orderreq.direction = DIRECTION_SHORT
+        orderreq.offset = OFFSET_OPEN
         self.algo.twap(1, orderreq)
         """
         if 'position' in event.data:
